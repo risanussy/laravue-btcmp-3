@@ -5,25 +5,48 @@
     <div class="info"></div>
     <div class="row">
       <div class="col pr-4 me-4" style="border-right: 1px solid gainsboro">
-        <form @submit.prevent="add()">
-          <div class="mb-3">
-            <label for="nama" class="form-label">Nama Produk</label>
-            <input type="text" class="form-control" id="nama" v-model="nama">
-          </div>
-          <div class="mb-3">
-            <label for="nama" class="form-label">Deskripsi</label>
-            <textarea class="form-control" id="nama" v-model="desc"></textarea>
-          </div>
-          <div class="mb-3">
-            <label for="foto" class="form-label">Foto</label>
-            <input type="file" class="form-control" id="foto" @change="e => foto = e.target.files[0]">
-          </div>
-          <div class="mb-3">
-            <label for="harga" class="form-label">Harga</label>
-            <input type="number" class="form-control" id="harga" v-model="harga">
-          </div>
-          <button type="submit" class="btn btn-primary">Tambah</button>
-        </form>
+        <div v-if="editId > 0">
+          <form @submit.prevent="update(editId)">
+            <div class="mb-3">
+              <label for="nama" class="form-label">Nama Produk</label>
+              <input type="text" class="form-control" id="nama" v-model="nama">
+            </div>
+            <div class="mb-3">
+              <label for="nama" class="form-label">Deskripsi</label>
+              <textarea class="form-control" id="nama" v-model="desc"></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="foto" class="form-label">Foto</label>
+              <input type="file" class="form-control" id="foto" @change="e => foto = e.target.files[0]">
+            </div>
+            <div class="mb-3">
+              <label for="harga" class="form-label">Harga</label>
+              <input type="number" class="form-control" id="harga" v-model="harga">
+            </div>
+            <button type="submit" class="btn btn-primary">Edit</button>
+          </form>
+        </div>
+        <div v-else>
+          <form @submit.prevent="add()">
+            <div class="mb-3">
+              <label for="nama" class="form-label">Nama Produk</label>
+              <input type="text" class="form-control" id="nama" v-model="nama">
+            </div>
+            <div class="mb-3">
+              <label for="nama" class="form-label">Deskripsi</label>
+              <textarea class="form-control" id="nama" v-model="desc"></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="foto" class="form-label">Foto</label>
+              <input type="file" class="form-control" id="foto" @change="e => foto = e.target.files[0]">
+            </div>
+            <div class="mb-3">
+              <label for="harga" class="form-label">Harga</label>
+              <input type="number" class="form-control" id="harga" v-model="harga">
+            </div>
+            <button type="submit" class="btn btn-primary">Tambah</button>
+          </form>
+        </div>
       </div>
       <div class="col">
         <table class="table">
@@ -47,7 +70,7 @@
               </td>
               <td>{{ data.harga }}</td>
               <td>
-                <button class="btn btn-success me-2"><i class="fa-solid fa-square-plus"></i></button>
+                <button class="btn btn-success me-2" @click="edit(data.id)"><i class="fa-solid fa-square-plus"></i></button>
                 <button class="btn btn-outline-danger" @click="del(data.id)"><i class="fa-solid fa-trash-can"></i></button>
               </td>
             </tr>
@@ -67,6 +90,7 @@ export default {
   data(){
     return {
       datas : [],
+      editId : null,
       nama: '',
       desc: '',
       foto: null,
@@ -121,7 +145,42 @@ export default {
             </div>`
         })
 
-    }
+    },
+    edit(id){
+      axios.get('http://localhost:8000/api/products/show/' + id)
+        .then(res => {
+          this.editId = id
+          this.nama = res.data.data.nama
+          this.desc = res.data.data.desc
+          this.harga = res.data.data.harga
+        })
+    },
+    update(id){
+      let formData = new FormData();
+
+      formData.append('nama', this.nama)
+      formData.append('desc', this.desc)
+      formData.append('foto', this.foto)
+      formData.append('harga', this.harga)
+
+      axios.post('http://localhost:8000/api/products/edit/' + id, formData, {
+        Headers: {'Content-Type': 'multipart/form-data'}
+      })
+        .then((res) => {
+          this.list()
+          this.nama = ''
+          this.desc = ''
+          this.foto = null
+          this.harga = 0
+
+          this.edit = 0
+
+          document.querySelector('.info').innerHTML = `
+            <div class="alert alert-warning" role="alert">
+              ${res.data.message}
+            </div>`
+        })
+    },
   }
 }
 

@@ -65,7 +65,7 @@ class ProductController extends Controller
         if($request->hasFile('foto')){
             // cek dan hapus
             if(!empty($products->foto)){
-                $imagePath = public_path('images/', $products->foto);
+                $imagePath = public_path('images/'. $products->foto);
 
                 if(file_exists($imagePath)){
                     unlink($imagePath);
@@ -82,7 +82,7 @@ class ProductController extends Controller
         $products->update($data);
 
         return response()->json([
-            'message' => 'Product Berhasil Diambil',
+            'message' => 'Product Berhasil Diupdate',
             'code' => 200,
             'data' => $products
         ]);
