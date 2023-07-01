@@ -92,7 +92,7 @@ class ProductController extends Controller
         $products = Product::find($id);
         
         if(!empty($products->foto)){
-            $imagePath = public_path('images/', $products->foto);
+            $imagePath = public_path('images/'. $products->foto);
 
             if(file_exists($imagePath)){
                 unlink($imagePath);
@@ -102,7 +102,7 @@ class ProductController extends Controller
         $products->delete();
 
         return response()->json([
-            'message' => 'Product Berhasil Diambil',
+            'message' => 'Product Berhasil Dihapus',
             'code' => 200,
             'data' => $products
         ]);
